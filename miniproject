@@ -1,0 +1,185 @@
+#include <stdio.h>
+
+#define INF 999999
+#define MAX 100
+
+struct Edge
+{
+    int u;
+    int v;
+    int weight;
+};
+
+void printPath(int parent[], int vertex)
+{
+    if (parent[vertex] == -1)
+    {
+        printf("%d", vertex);
+        return;
+    }
+
+    printPath(parent, parent[vertex]);
+    printf(" -> %d", vertex);
+}
+
+int main()
+{
+    int V, E, source;
+    struct Edge edge[MAX];
+
+    int dist[MAX];
+    int parent[MAX];
+
+    // ST1: Select the source vertex
+    printf("Enter number of vertices: ");
+    scanf("%d", &V);
+
+    printf("Enter number of edges: ");
+    scanf("%d", &E);
+
+    // ST2: Store the directed edge list
+    printf("\nEnter edges as: Source Destination Weight\n");
+
+    for (int i = 0; i < E; i++)
+    {
+        printf("Edge %d: ", i + 1);
+        scanf("%d %d %d",
+              &edge[i].u,
+              &edge[i].v,
+              &edge[i].weight);
+    }
+
+    printf("\nEnter source vertex: ");
+    scanf("%d", &source);
+
+    // ST3: Initialize distances and parents
+    for (int i = 1; i <= V; i++)
+    {
+        dist[i] = INF;
+        parent[i] = -1;
+    }
+
+    dist[source] = 0;
+
+    // ST4: Relax all edges V-1 times
+    for (int pass = 1; pass <= V - 1; pass++)
+    {
+        int updated = 0;
+
+        for (int i = 0; i < E; i++)
+        {
+            int u = edge[i].u;
+            int v = edge[i].v;
+            int w = edge[i].weight;
+
+            // Relaxation
+            if (dist[u] != INF &&
+                dist[u] + w < dist[v])
+            {
+                dist[v] = dist[u] + w;
+
+                // Store parent
+                parent[v] = u;
+
+                updated = 1;
+            }
+        }
+
+        // Display distance after each pass
+        printf("\nPass %d:\n", pass);
+
+        printf("Vertex : ");
+        for (int i = 1; i <= V; i++)
+        {
+            printf("%d\t", i);
+        }
+
+        printf("\nDist   : ");
+        for (int i = 1; i <= V; i++)
+        {
+            if (dist[i] == INF)
+                printf("INF\t");
+            else
+                printf("%d\t", dist[i]);
+        }
+
+        printf("\n");
+
+        // If no distance changed, stop early
+        if (updated == 0)
+        {
+            break;
+        }
+    }
+
+    // ST5: Check for negative-weight cycle
+    int negativeCycle = 0;
+
+    for (int i = 0; i < E; i++)
+    {
+        int u = edge[i].u;
+        int v = edge[i].v;
+        int w = edge[i].weight;
+
+        if (dist[u] != INF &&
+            dist[u] + w < dist[v])
+        {
+            negativeCycle = 1;
+            break;
+        }
+    }
+
+    // ST6: Final result
+    printf("\n====================================\n");
+
+    if (negativeCycle)
+    {
+        printf("NEGATIVE WEIGHT CYCLE EXISTS\n");
+        printf("Shortest paths cannot be finalized.\n");
+        return 0;
+    }
+
+    printf("NO NEGATIVE WEIGHT CYCLE\n");
+
+    // ST7: Distance and Parent Table
+    printf("\nDistance and Parent Table\n");
+    printf("------------------------------------\n");
+    printf("Vertex\tDistance\tParent\n");
+
+    for (int i = 1; i <= V; i++)
+    {
+        printf("%d\t", i);
+
+        if (dist[i] == INF)
+            printf("INF\t\t");
+        else
+            printf("%d\t\t", dist[i]);
+
+        if (parent[i] == -1)
+            printf("-\n");
+        else
+            printf("%d\n", parent[i]);
+    }
+
+    // ST8: Show shortest routes
+    printf("\nShortest Routes from Source %d:\n", source);
+    printf("------------------------------------\n");
+
+    for (int i = 1; i <= V; i++)
+    {
+        if (dist[i] == INF)
+        {
+            printf("Vertex %d: Unreachable\n", i);
+        }
+        else
+        {
+            printf("Vertex %d: ", i);
+
+            printPath(parent, i);
+
+            printf("  Cost = %d\n", dist[i]);
+        }
+    }
+
+    return 0;
+}
