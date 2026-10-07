@@ -11,7 +11,7 @@ route while considering negative cost adjustments.
 - Optimal route selection
 
 ## Technologies Used
-- C++
+- C
 - Graph Algorithms
 
 ## How to Run
